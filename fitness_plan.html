@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书健身计划生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(230, 240, 250, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(240, 230, 250, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg,
+                    #E8F4F8 0%,
+                    #F0E8F8 12%,
+                    #E8F8F0 25%,
+                    #F8F0E8 37%,
+                    #E8F0F8 50%,
+                    #F8E8F0 62%,
+                    #F0F8E8 75%,
+                    #E8F8F8 87%,
+                    #E8F4F8 100%);
+            color: #2F4F4F;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 油画笔触装饰 - 四个角 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, rgba(176, 224, 230, 0.18), rgba(255, 182, 193, 0.12));
+            border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%;
+            filter: blur(20px);
+            z-index: -1;
+            transform: rotate(45deg);
+            top: -150px;
+            left: -150px;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, rgba(181, 234, 215, 0.12), rgba(176, 224, 230, 0.18));
+            border-radius: 50% 20% 60% 40% / 60% 30% 70% 40%;
+            filter: blur(25px);
+            z-index: -1;
+            transform: rotate(-30deg);
+            bottom: -200px;
+            right: -200px;
+        }
+
+        .painting-stroke-1 {
+            position: fixed;
+            top: 10%;
+            right: 0;
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.1), rgba(181, 234, 215, 0.12));
+            border-radius: 40% 60% 60% 40% / 70% 50% 50% 30%;
+            filter: blur(15px);
+            z-index: -1;
+            transform: rotate(75deg);
+        }
+
+        .painting-stroke-2 {
+            position: fixed;
+            bottom: 10%;
+            left: 0;
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(225deg, rgba(181, 234, 215, 0.1), rgba(176, 224, 230, 0.08));
+            border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+            filter: blur(20px);
+            z-index: -1;
+            transform: rotate(-15deg);
+        }
+
+        .painting-stroke-3 {
+            position: fixed;
+            top: 5%;
+            left: 5%;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, rgba(176, 224, 230, 0.1), rgba(255, 182, 193, 0.08));
+            border-radius: 50% 30% 60% 40% / 30% 60% 40% 70%;
+            filter: blur(15px);
+            z-index: -1;
+            transform: rotate(25deg);
+        }
+
+        .painting-stroke-4 {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+            width: 280px;
+            height: 280px;
+            background: linear-gradient(315deg, rgba(181, 234, 215, 0.12), rgba(176, 224, 230, 0.1));
+            border-radius: 30% 70% 40% 60% / 60% 40% 70% 30%;
+            filter: blur(18px);
+            z-index: -1;
+            transform: rotate(-40deg);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 30px;
+            border: 1px solid rgba(176, 224, 230, 0.2);
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .header::before {
+            content: '每日打卡 坚持就是胜利 自律即自由';
+            position: absolute;
+            font-size: 4rem;
+            font-weight: 900;
+            color: rgba(70, 130, 180, 0.08);
+            white-space: nowrap;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            z-index: -1;
+            letter-spacing: 25px;
+            font-family: "Times New Roman", serif;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.03);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+            color: #2F4F4F;
+            animation: gentleFloat 4s infinite ease-in-out;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        h1 {
+            color: #2F4F4F;
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+            font-family: "Times New Roman", Georgia, serif;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #2F4F4F;
+            font-size: 1.3rem;
+            margin-top: 15px;
+            font-weight: 500;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+
+        .input-section {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.06),
+                0 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(176, 224, 230, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(176, 224, 230, 0.5),
+                transparent);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            color: #2F4F4F;
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: "Times New Roman", Georgia, serif;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(176, 224, 230, 0.5);
+        }
+
+        .section-title i {
+            color: #2F4F4F;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            color: #2F4F4F;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            padding: 16px 20px;
+            border: 1px solid rgba(176, 224, 230, 0.5);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.4s ease;
+            color: #2F4F4F;
+            box-shadow:
+                inset 0 2px 6px rgba(0,0,0,0.04),
+                0 3px 10px rgba(0,0,0,0.04);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2F4F4F;
+            box-shadow:
+                0 0 0 4px rgba(47, 79, 79, 0.15),
+                inset 0 2px 4px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .plan-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .plan-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 30px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(176, 224, 230, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 10px 25px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #B0E0E6, #B5EAD7, #FFB6C1);
+            opacity: 0.7;
+        }
+
+        .plan-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(176, 224, 230, 0.1), rgba(255, 182, 193, 0.05));
+            z-index: -1;
+            border-radius: 25px;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow:
+                0 25px 50px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            border-color: rgba(47, 79, 79, 0.4);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .plan-card.selected {
+            border-color: #2F4F4F;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow:
+                0 15px 35px rgba(47, 79, 79, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .plan-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #2F4F4F;
+        }
+
+        .plan-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2F4F4F;
+            margin-bottom: 15px;
+            font-family: "Times New Roman", Georgia, serif;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-desc {
+            color: #556B2F;
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #7EB9D6, #8FCFC1);
+            color: white;
+            border: none;
+            padding: 20px 45px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.4s ease;
+            box-shadow:
+                0 15px 30px rgba(126, 185, 214, 0.25),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+            font-family: "Times New Roman", Georgia, serif;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 20px 40px rgba(126, 185, 214, 0.35),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 50px;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .plan-info {
+            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(176, 224, 230, 0.7), rgba(181, 234, 215, 0.6));
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: #2F4F4F;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            border: 1px solid rgba(176, 224, 230, 0.4);
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            border: 1px solid rgba(176, 224, 230, 0.4);
+            min-width: 180px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            color: #2F4F4F;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2F4F4F;
+            font-family: "Times New Roman", Georgia, serif;
+        }
+
+        .weekly-plan {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            margin-bottom: 40px;
+            border: 1px solid rgba(176, 224, 230, 0.3);
+        }
+
+        .week-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .week-tab {
+            padding: 15px 30px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2F4F4F;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(176, 224, 230, 0.4);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+        }
+
+        .week-tab:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+
+        .week-tab.active {
+            background: linear-gradient(135deg, #7EB9D6, #8FCFC1);
+            color: white;
+            box-shadow: 0 10px 20px rgba(126, 185, 214, 0.2);
+        }
+
+        .plan-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            backdrop-filter: blur(5px);
+        }
+
+        .plan-table th {
+            background: linear-gradient(135deg, #7EB9D6, #8FCFC1);
+            color: white;
+            padding: 20px 18px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 1.2rem;
+            font-family: "Times New Roman", Georgia, serif;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .plan-table td {
+            padding: 18px;
+            border-bottom: 1px solid rgba(182, 216, 242, 0.3);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .plan-table tr:nth-child(even) td {
+            background: rgba(240, 248, 255, 0.8);
+        }
+
+        .plan-table tr:hover td {
+            background: rgba(230, 240, 255, 0.9);
+        }
+
+        .meal-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .meal-emoji {
+            font-size: 1.3rem;
+            width: 35px;
+            text-align: center;
+        }
+
+        .meal-text {
+            flex: 1;
+            color: #2F4F4F;
+        }
+
+        .meal-calories {
+            color: #2F4F4F;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 18px 40px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: none;
+            font-family: "Times New Roman", Georgia, serif;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.08),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #7EB9D6, #8FCFC1);
+            color: white;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.8);
+            color: #2F4F4F;
+            border: 1px solid rgba(176, 224, 230, 0.7);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 20px 35px rgba(0,0,0,0.15),
+                0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(135deg, #6CA5C9, #7DBBAD);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #2F4F4F;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #2F4F4F;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(176, 224, 230, 0.2);
+        }
+
+        .message {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 18px 28px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            animation: slideIn 0.4s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .success {
+            background: linear-gradient(135deg, rgba(126, 185, 214, 0.9), rgba(143, 207, 193, 0.9));
+        }
+
+        .warning {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.9), rgba(255, 160, 122, 0.9));
+        }
+
+        .export-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 50px;
+            display: none;
+            border: 1px solid rgba(176, 224, 230, 0.3);
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .export-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        #exportImage {
+            max-width: 100%;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            margin: 25px 0;
+            border: 1px solid rgba(182, 216, 242, 0.6);
+        }
+
+        .art-text {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            color: rgba(176, 224, 230, 0.15);
+            font-weight: 900;
+            font-size: 6rem;
+            transform: rotate(-15deg);
+            top: 50%;
+            left: 50%;
+            white-space: nowrap;
+            font-family: "Times New Roman", serif;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-options {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-item {
+                min-width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header::before {
+                font-size: 2.5rem;
+                letter-spacing: 15px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            /* 手机端表格优化 */
+            .weekly-plan {
+                overflow-x: auto;
+                padding: 20px;
+            }
+
+            .plan-table {
+                font-size: 0.9rem;
+            }
+
+            .plan-table th,
+            .plan-table td {
+                padding: 12px 10px;
+            }
+
+            .plan-table th {
+                font-size: 1rem;
+            }
+
+            .meal-item {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .meal-emoji {
+                font-size: 1rem;
+                width: 25px;
+            }
+
+            .meal-calories {
+                font-size: 0.85rem;
+            }
+
+            .week-tab {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .action-btn {
+                padding: 15px 25px;
+                font-size: 1rem;
+            }
+
+            /* 手机端艺术字背景优化 */
+            .art-text {
+                font-size: 3rem;
+            }
+
+            /* 手机端油画笔触优化 */
+            .painting-stroke-1 {
+                width: 150px;
+                height: 150px;
+            }
+
+            .painting-stroke-2 {
+                width: 200px;
+                height: 200px;
+            }
+
+            .painting-stroke-3 {
+                width: 120px;
+                height: 120px;
+            }
+
+            .painting-stroke-4 {
+                width: 160px;
+                height: 160px;
+            }
+
+            /* 手机端背景装饰优化 */
+            body::before {
+                width: 200px;
+                height: 200px;
+                top: -100px;
+                left: -100px;
+            }
+
+            body::after {
+                width: 250px;
+                height: 250px;
+                bottom: -125px;
+                right: -125px;
+            }
+        }
+
+        /* 超小屏幕优化 (最大480px) */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .header::before {
+                font-size: 1.8rem;
+                letter-spacing: 8px;
+            }
+
+            .input-section,
+            .weekly-plan,
+            .plan-info,
+            .export-container {
+                padding: 25px;
+            }
+
+            .plan-table th,
+            .plan-table td {
+                padding: 8px 6px;
+                font-size: 0.85rem;
+            }
+
+            .meal-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+            }
+
+            .meal-emoji {
+                font-size: 0.9rem;
+                width: 20px;
+            }
+
+            .meal-calories {
+                font-size: 0.8rem;
+            }
+
+            .art-text {
+                font-size: 2rem;
+            }
+
+            .painting-stroke-1 {
+                width: 100px;
+                height: 100px;
+            }
+
+            .painting-stroke-2 {
+                width: 140px;
+                height: 140px;
+            }
+
+            .painting-stroke-3 {
+                width: 80px;
+                height: 80px;
+            }
+
+            .painting-stroke-4 {
+                width: 110px;
+                height: 110px;
+            }
+
+            body::before {
+                width: 150px;
+                height: 150px;
+                top: -75px;
+                left: -75px;
+            }
+
+            body::after {
+                width: 180px;
+                height: 180px;
+                bottom: -90px;
+                right: -90px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入 html2canvas 库 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- 油画笔触装饰块 -->
+    <div class="painting-stroke-1"></div>
+    <div class="painting-stroke-2"></div>
+    <div class="painting-stroke-3"></div>
+    <div class="painting-stroke-4"></div>
+
+    <!-- 艺术字背景 -->
+    <div class="art-text">每日打卡</div>
+    <div class="art-text" style="top: 30%; left: 20%; transform: rotate(10deg);">坚持就是胜利</div>
+    <div class="art-text" style="top: 70%; left: 80%; transform: rotate(25deg);">自律即自由</div>
+    <div class="art-text" style="top: 20%; left: 80%; transform: rotate(-10deg);">健康生活</div>
+    <div class="art-text" style="top: 80%; left: 20%; transform: rotate(30deg);">一起加油</div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">💪</div>
+            <h1>小红书健身计划生成器</h1>
+        </div>
+        <p class="subtitle">定制你的专属减脂计划 | 21天/30天科学塑形 | 马卡龙色系精美打卡表</p>
+    </div>
+
+    <div class="input-section">
+        <div class="section-title">
+            <i class="fas fa-user-edit"></i>
+            <span>基本信息填写</span>
+        </div>
+        <div class="input-grid">
+            <div class="input-group">
+                <label><i class="fas fa-venus-mars"></i> 性别</label>
+                <select id="gender">
+                    <option value="female">👩 女生</option>
+                    <option value="male">👨 男生</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-weight"></i> 当前体重 (kg)</label>
+                <input type="number" id="currentWeight" placeholder="例如：65" min="30" max="200" value="65">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-bullseye"></i> 目标体重 (kg)</label>
+                <input type="number" id="targetWeight" placeholder="例如：55" min="30" max="200" value="55">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-alt"></i> 计划周期 (天)</label>
+                <select id="planDays">
+                    <option value="21">📅 21天 (三周计划)</option>
+                    <option value="30" selected>📅 30天 (月度计划)</option>
+                    <option value="45">📅 45天 (强化计划)</option>
+                    <option value="60">📅 60天 (系统塑形)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-clipboard-list"></i>
+            <span>选择计划模板</span>
+        </div>
+        <div class="plan-options">
+            <div class="plan-card" data-plan="lightFasting">
+                <div class="plan-icon">🍽️</div>
+                <div class="plan-title">16+8 轻断食版</div>
+                <div class="plan-desc">适合上班族，无需剧烈运动，通过控制进食时间窗口达到减脂效果</div>
+            </div>
+            <div class="plan-card" data-plan="liujinhong">
+                <div class="plan-icon">💃</div>
+                <div class="plan-title">刘畊宏女孩版</div>
+                <div class="plan-desc">动感燃脂操为主，配合均衡饮食，快乐减脂不枯燥</div>
+            </div>
+            <div class="plan-card" data-plan="pamela">
+                <div class="plan-icon">🏋️‍♀️</div>
+                <div class="plan-title">极简帕梅拉版</div>
+                <div class="plan-desc">高强度间歇训练，每天15-20分钟，高效燃脂塑形</div>
+            </div>
+            <div class="plan-card" data-plan="buddha">
+                <div class="plan-icon">🌸</div>
+                <div class="plan-title">佛系瘦身版</div>
+                <div class="plan-desc">无压力温和减脂，注重饮食调节和日常活动，适合新手</div>
+            </div>
+        </div>
+
+        <button class="generate-btn" onclick="generatePlan()">
+            <i class="fas fa-magic"></i> 一键生成健身计划表
+        </button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+        <div class="plan-info">
+            <div class="info-item">
+                <div class="info-label">计划模板</div>
+                <div class="info-value" id="planTemplateName">轻断食版</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">当前体重</div>
+                <div class="info-value" id="infoCurrentWeight">65 kg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">目标体重</div>
+                <div class="info-value" id="infoTargetWeight">55 kg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">计划周期</div>
+                <div class="info-value" id="infoPlanDays">30 天</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">需减重</div>
+                <div class="info-value" id="infoWeightLoss">10 kg</div>
+            </div>
+        </div>
+
+        <div class="weekly-plan" id="exportContent">
+            <div class="section-title">
+                <i class="fas fa-calendar-check"></i>
+                <span>周计划表 (第1周)</span>
+            </div>
+            <div class="week-tabs" id="weekTabs">
+                <!-- 周选项卡将通过JS动态生成 -->
+            </div>
+            <table class="plan-table" id="planTable">
+                <!-- 计划表格将通过JS动态生成 -->
+            </table>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn export-btn" onclick="exportToImage()">
+                <i class="fas fa-camera"></i> 导出小红书图片 (3:4)
+            </button>
+            <button class="action-btn reset-btn" onclick="resetForm()">
+                <i class="fas fa-redo"></i> 重新制定计划
+            </button>
+        </div>
+    </div>
+
+    <div class="export-container" id="exportContainer">
+        <div class="section-title">
+            <i class="fas fa-image"></i>
+            <span>导出图片预览</span>
+        </div>
+        <img id="exportImage" src="" alt="计划表截图">
+        <div class="action-buttons">
+            <button class="action-btn export-btn" onclick="downloadImage()">
+                <i class="fas fa-download"></i> 下载图片
+            </button>
+            <button class="action-btn reset-btn" onclick="closeExport()">
+                <i class="fas fa-times"></i> 关闭预览
+            </button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 小红书健身计划生成器 | 科学减脂 • 马卡龙美学 • 一键生成打卡表</p>
+        <p style="margin-top: 5px; font-size: 0.8rem;">健康生活从自律开始，坚持就是胜利！💪</p>
+    </div>
+
+    <div class="message success" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span>计划生成成功！</span>
+    </div>
+
+    <div class="message warning" id="warningMessage">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>请填写完整信息！</span>
+    </div>
+
+    <script>
+        // 全局变量
+        let selectedPlan = 'lightFasting';
+        let currentWeek = 1;
+        let totalWeeks = 4;
+        let planData = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认选中的计划卡片
+            document.querySelector('.plan-card[data-plan="lightFasting"]').classList.add('selected');
+
+            // 绑定计划卡片点击事件
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedPlan = this.dataset.plan;
+                });
+            });
+
+            // 输入验证
+            document.getElementById('currentWeight').addEventListener('input', validateWeight);
+            document.getElementById('targetWeight').addEventListener('input', validateWeight);
+        });
+
+        function validateWeight() {
+            const current = parseFloat(document.getElementById('currentWeight').value) || 0;
+            const target = parseFloat(document.getElementById('targetWeight').value) || 0;
+
+            if (current > 0 && target > 0 && target >= current) {
+                showMessage('目标体重应该低于当前体重哦！', 'warning');
+            }
+        }
+
+        function showMessage(text, type) {
+            const message = document.getElementById(type === 'success' ? 'successMessage' : 'warningMessage');
+            message.querySelector('span').textContent = text;
+            message.style.display = 'flex';
+
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+
+        // 计划模板数据
+        const planTemplates = {
+            lightFasting: {
+                name: '16+8 轻断食版',
+                description: '每天16小时禁食，8小时进食窗口',
+                meals: {
+                    breakfast: ['无糖豆浆 200ml', '水煮蛋 2个', '全麦面包 1片'],
+                    lunch: ['鸡胸肉沙拉 150g', '糙米饭 半碗', '清炒西兰花', '番茄豆腐汤'],
+                    dinner: ['蒸鱼 100g', '蔬菜汤 1碗', '少量水果', '凉拌黄瓜']
+                },
+                exercises: ['空腹有氧 30分钟', '饭后散步 20分钟', '拉伸放松 10分钟']
+            },
+            liujinhong: {
+                name: '刘畊宏女孩版',
+                description: '动感燃脂操+快乐饮食',
+                meals: {
+                    breakfast: ['燕麦粥 1碗', '香蕉 1根', '无糖酸奶 100ml'],
+                    lunch: ['牛肉炒西兰花', '紫薯 1个', '番茄蛋汤'],
+                    dinner: ['虾仁蒸蛋', '凉拌黄瓜', '杂粮粥 半碗']
+                },
+                exercises: ['热身操 10分钟', '本草纲目 30分钟', '龙拳 20分钟', '拉伸 10分钟']
+            },
+            pamela: {
+                name: '极简帕梅拉版',
+                description: '高效HIIT训练+精准营养',
+                meals: {
+                    breakfast: ['蛋白粉奶昔', '坚果 一小把', '苹果 半个'],
+                    lunch: ['三文鱼 120g', '藜麦沙拉', '芦笋炒蘑菇'],
+                    dinner: ['希腊酸奶 150g', '蔬菜拼盘', '少量浆果']
+                },
+                exercises: ['热身 5分钟', 'HIIT燃脂 15分钟', '核心训练 10分钟', '拉伸 5分钟']
+            },
+            buddha: {
+                name: '佛系瘦身版',
+                description: '温和减脂，无压力坚持',
+                meals: {
+                    breakfast: ['小米粥 1碗', '蒸蛋羹', '小菜一碟'],
+                    lunch: ['清蒸鸡胸肉', '炒青菜', '米饭 半碗'],
+                    dinner: ['豆腐蔬菜汤', '凉拌海带丝', '蒸南瓜']
+                },
+                exercises: ['晨间瑜伽 20分钟', '晚饭后散步 30分钟', '睡前拉伸 10分钟']
+            }
+        };
+
+        // 生成计划
+        function generatePlan() {
+            const gender = document.getElementById('gender').value;
+            const currentWeight = parseFloat(document.getElementById('currentWeight').value);
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const planDays = parseInt(document.getElementById('planDays').value);
+
+            // 验证输入
+            if (!currentWeight || !targetWeight || currentWeight <= 0 || targetWeight <= 0) {
+                showMessage('请填写正确的体重信息！', 'warning');
+                return;
+            }
+
+            if (targetWeight >= currentWeight) {
+                showMessage('目标体重应该低于当前体重哦！', 'warning');
+                return;
+            }
+
+            // 计算基本信息
+            const weightLoss = currentWeight - targetWeight;
+            totalWeeks = Math.ceil(planDays / 7);
+
+            // 更新信息显示
+            document.getElementById('planTemplateName').textContent = planTemplates[selectedPlan].name;
+            document.getElementById('infoCurrentWeight').textContent = currentWeight + ' kg';
+            document.getElementById('infoTargetWeight').textContent = targetWeight + ' kg';
+            document.getElementById('infoPlanDays').textContent = planDays + ' 天';
+            document.getElementById('infoWeightLoss').textContent = weightLoss.toFixed(1) + ' kg';
+
+            // 生成周选项卡
+            generateWeekTabs(totalWeeks);
+
+            // 生成计划表格
+            generatePlanTable(1);
+
+            // 显示结果区域
+            document.getElementById('resultSection').classList.add('show');
+
+            // 滚动到结果区域
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+
+            showMessage('健身计划生成成功！', 'success');
+        }
+
+        function generateWeekTabs(weeks) {
+            const weekTabs = document.getElementById('weekTabs');
+            weekTabs.innerHTML = '';
+
+            for (let i = 1; i <= weeks; i++) {
+                const tab = document.createElement('div');
+                tab.className = i === 1 ? 'week-tab active' : 'week-tab';
+                tab.textContent = `第${i}周`;
+                tab.dataset.week = i;
+                tab.addEventListener('click', function() {
+                    currentWeek = parseInt(this.dataset.week);
+                    document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    generatePlanTable(currentWeek);
+                });
+                weekTabs.appendChild(tab);
+            }
+        }
+
+        function generatePlanTable(week) {
+            const template = planTemplates[selectedPlan];
+            const planTable = document.getElementById('planTable');
+
+            // 生成表格标题
+            let html = `
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>早餐</th>
+                        <th>午餐</th>
+                        <th>晚餐</th>
+                        <th>运动打卡</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            // 生成每周7天的计划
+            const weekStart = (week - 1) * 7 + 1;
+            const weekDays = ['一', '二', '三', '四', '五', '六', '日'];
+
+            for (let i = 0; i < 7; i++) {
+                const day = weekStart + i;
+                const dayName = weekDays[i];
+
+                // 保持每天餐单完整，显示所有菜品
+
+                // 生成早餐菜品HTML
+                let breakfastHTML = '';
+                template.meals.breakfast.forEach((item, index) => {
+                    const emoji = index === 0 ? '🌅' : index === 1 ? '🍞' : '🥚';
+                    breakfastHTML += `
+                        <div class="meal-item">
+                            <div class="meal-emoji">${emoji}</div>
+                            <div class="meal-text">${item}</div>
+                            <div class="meal-calories">${150 + index * 50} kcal</div>
+                        </div>
+                    `;
+                });
+
+                // 生成午餐菜品HTML
+                let lunchHTML = '';
+                template.meals.lunch.forEach((item, index) => {
+                    const emoji = index === 0 ? '☀️' : index === 1 ? '🍚' : '🥗';
+                    lunchHTML += `
+                        <div class="meal-item">
+                            <div class="meal-emoji">${emoji}</div>
+                            <div class="meal-text">${item}</div>
+                            <div class="meal-calories">${250 + index * 50} kcal</div>
+                        </div>
+                    `;
+                });
+
+                // 生成晚餐菜品HTML
+                let dinnerHTML = '';
+                template.meals.dinner.forEach((item, index) => {
+                    const emoji = index === 0 ? '🌙' : index === 1 ? '🍲' : '🍎';
+                    dinnerHTML += `
+                        <div class="meal-item">
+                            <div class="meal-emoji">${emoji}</div>
+                            <div class="meal-text">${item}</div>
+                            <div class="meal-calories">${200 + index * 40} kcal</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 700; color: #2F4F4F;">第${day}天 (周${dayName})</td>
+                        <td>${breakfastHTML}</td>
+                        <td>${lunchHTML}</td>
+                        <td>${dinnerHTML}</td>
+                        <td>
+                            <div style="font-weight: 600; color: #2F4F4F; margin-bottom: 5px;">
+                                ${template.exercises[0]}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666;">
+                                ${template.exercises.slice(1).join(' • ')}
+                            </div>
+                            <div style="margin-top: 8px; background: #F0F8FF; padding: 5px 10px; border-radius: 8px; font-size: 0.85rem; color: #2F4F4F;">
+                                ✅ 今日打卡：已完成 ${Math.min(day, 7 * totalWeeks)} / ${7 * totalWeeks} 天
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody>';
+            planTable.innerHTML = html;
+        }
+
+        // 导出图片功能
+        function exportToImage() {
+            const exportContent = document.getElementById('exportContent');
+            const planTemplateName = document.getElementById('planTemplateName').textContent;
+
+            // 临时添加标题用于导出
+            const originalHTML = exportContent.innerHTML;
+            const exportHTML = `
+                <div style="background: linear-gradient(135deg, #B0E0E6, #B5EAD7); padding: 25px; border-radius: 20px; margin-bottom: 30px; color: white; text-align: center;">
+                    <h2 style="margin: 0; font-size: 2rem;">小红书健身计划表</h2>
+                    <div style="display: flex; justify-content: center; gap: 30px; margin-top: 15px; flex-wrap: wrap;">
+                        <div style="font-size: 1.1rem;">📋 ${planTemplateName}</div>
+                        <div style="font-size: 1.1rem;">📅 第${currentWeek}周计划</div>
+                    </div>
+                </div>
+                ${originalHTML}
+                <div style="text-align: center; margin-top: 30px; padding: 20px; background: #F0F8FF; border-radius: 16px; color: #2F4F4F; font-weight: 600;">
+                    ✨ 健康生活从自律开始 | 坚持就是胜利！ ✨
+                </div>
+            `;
+
+            exportContent.innerHTML = exportHTML;
+
+            // 设置导出尺寸为 3:4 (600x800)
+            const options = {
+                backgroundColor: '#fff9fb',
+                scale: 2,
+                width: 600,
+                height: 800,
+                windowWidth: 600,
+                windowHeight: 800,
+                useCORS: true,
+                logging: false,
+                onclone: function(clonedDoc) {
+                    clonedDoc.querySelector('#exportContent').style.width = '600px';
+                    clonedDoc.querySelector('#exportContent').style.margin = '0 auto';
+                }
+            };
+
+            html2canvas(exportContent, options).then(canvas => {
+                // 恢复原始内容
+                exportContent.innerHTML = originalHTML;
+
+                // 显示导出图片
+                const imageData = canvas.toDataURL('image/png');
+                const exportImage = document.getElementById('exportImage');
+                exportImage.src = imageData;
+
+                // 存储图片数据
+                exportImage.dataset.imageData = imageData;
+
+                // 显示导出容器
+                document.getElementById('exportContainer').classList.add('show');
+                document.getElementById('exportContainer').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+
+        function downloadImage() {
+            const exportImage = document.getElementById('exportImage');
+            const imageData = exportImage.dataset.imageData;
+
+            if (!imageData) return;
+
+            const link = document.createElement('a');
+            link.href = imageData;
+            link.download = `小红书健身计划表_第${currentWeek}周.png`;
+            link.click();
+
+            showMessage('图片下载成功！', 'success');
+        }
+
+        function closeExport() {
+            document.getElementById('exportContainer').classList.remove('show');
+        }
+
+        function resetForm() {
+            // 重置表单
+            document.getElementById('currentWeight').value = '65';
+            document.getElementById('targetWeight').value = '55';
+            document.getElementById('planDays').value = '30';
+
+            // 重置计划选择
+            document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
+            document.querySelector('.plan-card[data-plan="lightFasting"]').classList.add('selected');
+            selectedPlan = 'lightFasting';
+
+            // 隐藏结果区域
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('exportContainer').classList.remove('show');
+
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            showMessage('表单已重置，开始制定新计划吧！', 'success');
+        }
+    </script>
+</body>
+</html>

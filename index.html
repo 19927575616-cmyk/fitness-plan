@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书健身计划生成器</title>
+    <meta http-equiv="refresh" content="0;url=fitness_plan.html">
+    <style>
+        body {
+            background: linear-gradient(135deg, #E3F2FD, #F3E5F5, #E8F5E9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            color: #2F4F4F;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(176, 224, 230, 0.3);
+            max-width: 500px;
+            margin: 20px;
+        }
+        h1 {
+            color: #2F4F4F;
+            margin-bottom: 20px;
+        }
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(176, 224, 230, 0.3);
+            border-top: 5px solid #2F4F4F;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .link {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #7EB9D6, #8FCFC1);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(126, 185, 214, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading">
+            <div class="spinner"></div>
+            <h1>小红书健身计划生成器</h1>
+            <p>正在跳转到健身计划生成器...</p>
+            <p>如果页面没有自动跳转，请点击下方链接</p>
+            <a href="fitness_plan.html" class="link">进入健身计划生成器</a>
+        </div>
+    </div>
+</body>
+</html>
